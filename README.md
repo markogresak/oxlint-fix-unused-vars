@@ -32,9 +32,20 @@ const result = removeUnusedVars({
 })
 ```
 
-`root` must be absolute. `path` accepts absolute paths or root-relative files, directories, and globs. `ignorePatterns` uses Oxlint-style gitignore syntax without loading `.gitignore`. `noUnusedVarsConfig` accepts `"all"`, `"local"`, or an options object. `write` defaults to `false` and accepts `true`/`false` or `{ enabled: true, passes?: number }`; dry runs include `updated` only for changed files. When `passes` is set, the tool re-runs while any files are written, up to that many times, and returns a flat `results` array with a 1-based `pass` on each entry. `includeRemovals` defaults to `false`. `threads` defaults to the available parallelism, must be at least one, and is clamped to four times the available parallelism (up to 256).
+### Options
 
-Parse and file errors are returned in `errors`; invalid top-level options throw.
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `root` | `string` | (required) | **Must be an absolute path.** Project root that relative `path` entries resolve against. |
+| `path` | `string[]` | (required) | Absolute paths, or files, directories, and globs relative to `root`. |
+| `ignorePatterns` | `string[]` | `[]` | Oxlint-style gitignore syntax. `.gitignore` is not loaded. |
+| `noUnusedVarsConfig` | `'all' \| 'local' \| NoUnusedVarsOptions` | Oxlint defaults | Rule options: `vars`, `args`, `caughtErrors`, ignore patterns, etc. |
+| `write` | `boolean \| { enabled: true, passes?: number }` | `false` | `false` = dry run; results carry `updated` only for changed files. |
+| `includeRemovals` | `boolean` | `false` | Include a `removals` array per file result. |
+| `threads` | `number` | available parallelism | Worker count. Minimum `1`; clamped to 4× available parallelism, max 256. |
+
+- **`passes`**: when set, the tool re-runs while any files are written, up to that many times. `results` stays a flat array with a 1-based `pass` on each entry.
+- **Errors**: parse and file errors are returned in `errors`; invalid top-level options throw.
 
 ## Local development
 
