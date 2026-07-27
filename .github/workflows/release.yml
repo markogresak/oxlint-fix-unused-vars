@@ -181,6 +181,18 @@ jobs:
 
       - name: Publish npm packages
         # Auth is via npm trusted publishing (OIDC), not a token; provenance is attached automatically.
+        # Platform packages go first so a failure there can't leave the root package published
+        # with dangling optionalDependencies.
         run: |
+          for dir in npm/*/; do
+            if [ "$dir" = "npm/oxlint-fix-unused-vars/" ]; then continue; fi
+            if ! ls "$dir"*.node >/dev/null 2>&1; then
+              echo "::error::no .node binary in $dir"
+              exit 1
+            fi
+            cp LICENSE "$dir"
+            echo "Publishing $dir"
+            npm publish "$dir" --access public
+          done
           cp README.md LICENSE npm/oxlint-fix-unused-vars/
           npm publish npm/oxlint-fix-unused-vars/ --access public
