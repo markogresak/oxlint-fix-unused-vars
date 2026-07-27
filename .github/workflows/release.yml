@@ -141,6 +141,9 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@latest
+
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -176,20 +179,8 @@ jobs:
             echo '----'
           done
 
-      - name: Generate .npmrc
-        run: echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-
       - name: Publish npm packages
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        # NOTE: The trailing slash on $package/ changes it to publishing the directory
+        # Auth is via npm trusted publishing (OIDC), not a token; provenance is attached automatically.
         run: |
           cp README.md LICENSE npm/oxlint-fix-unused-vars/
-          # publish platform subpackages first
-          for package in npm/*/
-          do
-            [ "$package" = "npm/oxlint-fix-unused-vars/" ] && continue
-            npm publish "$package" --provenance --access public
-          done
-          # publish root package last
-          npm publish npm/oxlint-fix-unused-vars/ --provenance --access public
+          npm publish npm/oxlint-fix-unused-vars/ --access public

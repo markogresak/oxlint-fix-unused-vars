@@ -677,7 +677,7 @@ dependencies = [
 
 [[package]]
 name = "oxlint-fix-unused-vars"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "globset",
  "ignore",
@@ -695,7 +695,7 @@ dependencies = [
 
 [[package]]
 name = "oxlint-fix-unused-vars-napi"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "lazy-regex",
  "napi",

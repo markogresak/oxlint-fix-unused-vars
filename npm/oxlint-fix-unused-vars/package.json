@@ -1,6 +1,6 @@
 {
   "name": "oxlint-fix-unused-vars",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Remove unused TypeScript and JavaScript bindings with Oxlint's no-unused-vars analysis.",
   "keywords": [
     "javascript",
