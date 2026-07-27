@@ -55,18 +55,22 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             code-target: linux-x64-gnu
+            use-cross: true
 
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             code-target: linux-arm64-gnu
+            use-cross: true
 
           - os: macos-14 # M1
             target: aarch64-apple-darwin
             code-target: darwin-arm64
+            use-cross: false
 
           - os: macos-14
             target: x86_64-apple-darwin
             code-target: darwin-x64
+            use-cross: false
 
     name: Package ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
@@ -77,6 +81,7 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Install cross
+        if: matrix.use-cross
         uses: taiki-e/install-action@v2
         with:
           tool: cross
@@ -85,7 +90,12 @@ jobs:
         run: rustup target add ${{ matrix.target }}
 
       - name: Build with cross
+        if: matrix.use-cross
         run: cross build --release -p oxlint-fix-unused-vars-napi --target=${{ matrix.target }}
+
+      - name: Build
+        if: ${{ !matrix.use-cross }} # macOS runners have no container engine for `cross`; both Apple targets cross-compile natively via the Xcode toolchain
+        run: cargo build --release -p oxlint-fix-unused-vars-napi --target=${{ matrix.target }}
 
       - name: Move file on ${{ matrix.os }}
         run: |
@@ -95,7 +105,7 @@ jobs:
           ls npm/oxlint-fix-unused-vars
 
       - name: Test
-        if: ${{ contains(matrix.target, 'x86_64') }} # Need docker for aarch64 on Linux
+        if: ${{ matrix.target == 'x86_64-unknown-linux-gnu' || matrix.target == 'aarch64-apple-darwin' }} # only host-runnable binaries: no docker for Linux aarch64, no Rosetta assumed for darwin x64
         run: node --test napi/test/remove-unused-vars.spec.mjs
 
       # The binary is zipped to fix permission loss https://github.com/actions/upload-artifact#permission-loss
@@ -144,16 +154,25 @@ jobs:
       - name: Untar
         run: ls *.gz | xargs -I {} tar xvf {}
 
-      - name: Generate npm packages
+      - name: Create npm dirs
+        run: pnpm exec napi create-npm-dirs --package-json-path npm/oxlint-fix-unused-vars/package.json --npm-dir npm
+
+      - name: Move artifacts into npm dirs
+        run: pnpm exec napi artifacts --package-json-path npm/oxlint-fix-unused-vars/package.json --npm-dir npm --output-dir npm/oxlint-fix-unused-vars
+
+      - name: Inject optionalDependencies
+        # --tag-style npm avoids `pre-publish`'s default lerna commit-message parsing (this repo
+        # doesn't use lerna-style release commits); --no-gh-release skips creating a GH release,
+        # which we don't have a token wired up for here.
+        run: pnpm exec napi pre-publish --package-json-path npm/oxlint-fix-unused-vars/package.json --npm-dir npm --skip-optional-publish --tag-style npm --no-gh-release
+
+      - name: Show generated packages
         run: |
-          ls
-          ls npm/oxlint-fix-unused-vars
-          node npm/oxlint-fix-unused-vars/scripts/generate-packages.mjs
           cat npm/oxlint-fix-unused-vars/package.json
-          for package in npm/oxlint-fix-unused-vars*
+          for package in npm/*/
           do
-            ls $package
-            cat $package/package.json
+            ls "$package"
+            cat "$package/package.json"
             echo '----'
           done
 
@@ -165,10 +184,12 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         # NOTE: The trailing slash on $package/ changes it to publishing the directory
         run: |
-          # publish subpackages first
-          for package in npm/oxlint-fix-unused-vars-*
+          cp README.md LICENSE npm/oxlint-fix-unused-vars/
+          # publish platform subpackages first
+          for package in npm/*/
           do
-            npm publish $package/ --provenance --access public
+            [ "$package" = "npm/oxlint-fix-unused-vars/" ] && continue
+            npm publish "$package" --provenance --access public
           done
           # publish root package last
           npm publish npm/oxlint-fix-unused-vars/ --provenance --access public

@@ -6,3 +6,5 @@
 generated.d.ts
 .DS_Store
 **/*.rs.bk
+/npm/*/
+!/npm/oxlint-fix-unused-vars/

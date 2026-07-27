@@ -1,18 +1,26 @@
 {
   "name": "oxlint-fix-unused-vars",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Remove unused TypeScript and JavaScript bindings with Oxlint's no-unused-vars analysis.",
-  "keywords": ["javascript", "typescript", "lint", "unused", "oxlint"],
+  "keywords": [
+    "javascript",
+    "typescript",
+    "lint",
+    "unused",
+    "oxlint"
+  ],
   "author": "Marko Gresak <marko@gresak.io>",
   "license": "MIT",
-  "repository": "https://github.com/markogresak/oxlint-fix-unused-vars",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markogresak/oxlint-fix-unused-vars.git"
+  },
   "homepage": "https://github.com/markogresak/oxlint-fix-unused-vars",
   "main": "index.js",
   "types": "index.d.ts",
   "files": [
     "index.js",
-    "index.d.ts",
-    "*.node"
+    "index.d.ts"
   ],
   "napi": {
     "binaryName": "oxlint-fix-unused-vars",
