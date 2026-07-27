@@ -1,0 +1,8 @@
+/target/
+/node_modules/
+**/node_modules/
+*.node
+*.tmp
+generated.d.ts
+.DS_Store
+**/*.rs.bk

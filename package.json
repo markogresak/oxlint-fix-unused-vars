@@ -1,0 +1,22 @@
+{
+  "name": "oxlint-fix-unused-vars-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.17.0",
+  "scripts": {
+    "build": "napi build --platform --release --package oxlint-fix-unused-vars-napi --manifest-path napi/Cargo.toml --package-json-path npm/oxlint-fix-unused-vars/package.json --output-dir npm/oxlint-fix-unused-vars --dts generated.d.ts",
+    "build:debug": "napi build --platform --package oxlint-fix-unused-vars-napi --manifest-path napi/Cargo.toml --package-json-path npm/oxlint-fix-unused-vars/package.json --output-dir npm/oxlint-fix-unused-vars --dts generated.d.ts",
+    "test": "cargo test && node --test napi/test/remove-unused-vars.spec.mjs"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.4.1"
+  },
+  "napi": {
+    "binaryName": "oxlint-fix-unused-vars",
+    "targets": [
+      "aarch64-apple-darwin",
+      "x86_64-apple-darwin",
+      "aarch64-unknown-linux-gnu",
+      "x86_64-unknown-linux-gnu"
+    ]
+  }
+}

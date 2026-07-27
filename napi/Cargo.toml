@@ -1,0 +1,19 @@
+[package]
+name = "oxlint-fix-unused-vars-napi"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.95"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+lazy-regex = "3"
+napi = { version = "3", default-features = false, features = ["napi8"] }
+napi-derive = "3"
+oxlint-fix-unused-vars = { path = ".." }
+
+[build-dependencies]
+napi-build = "2"
