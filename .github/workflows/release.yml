@@ -194,5 +194,4 @@ jobs:
             echo "Publishing $dir"
             npm publish "$dir" --access public
           done
-          cp README.md LICENSE npm/oxlint-fix-unused-vars/
           npm publish npm/oxlint-fix-unused-vars/ --access public
